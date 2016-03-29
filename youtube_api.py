@@ -22,4 +22,4 @@ def channelVideos(channel):
 		videos.append({ 'link': link, 'title': title, 'views': views, 'age': age })
 	return videos
 
-print(channelVideos('user/TeamFortressTV/videos'))
+# print(channelVideos('user/TeamFortressTV/videos'))
