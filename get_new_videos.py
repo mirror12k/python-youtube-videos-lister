@@ -7,7 +7,7 @@ import sys
 
 
 def parseTime(time):
-	match = re.match(r'^(\d+) (second|minute|hour|day|week|month|year)s? ago$', time)
+	match = re.match(r'^(\d+) (second|minute|hour|day|week|month|year)s?(?: ago)?$', time)
 	if match is None:
 		raise Exception("invalid time given: '"+time+'"')
 	else:
@@ -31,20 +31,27 @@ def parseTime(time):
 def getRecent(channel, time):
 	timeFrame = parseTime(time)
 
-	return [ video for video in youtube_api.channelVideos(channel) if parseTime(video['age']) <= timeFrame ]
+	return [ video for video in youtube_api.channelVideos(channel+'/videos') if parseTime(video['age']) <= timeFrame ]
 
 
 
 
 
 if __name__ == '__main__':
-	time = sys.argv[1]
-	for channel in [
-		'user/TeamFortressTV/videos',
-	]:
-		videos = getRecent(channel, time)
-		if len(videos) > 0:
-			print('[['+channel+']]:')
-			for video in videos:
-				print('\t"'+video['title']+'" -', video['link'], '- (', video['age'], ')')
+	if len(sys.argv) < 2:
+		print("time frame argument required (ex. '1 day')")
+	else:
+		time = ' '.join(sys.argv[1:])
+		with open('subs.lst') as f:
+			# iterate the file
+			for channel in f:
+				channel = channel.strip()
+				# ensure we have a channel on this line
+				if channel != '' and channel[0] != '#':
+					videos = getRecent(channel, time)
+					# if there are videos, print a nice header for it
+					if len(videos) > 0:
+						print('[['+channel+']]:')
+						for video in videos:
+							print('\t"'+video['title']+'" -', video['link'], '- (', video['age'], ')')
 
